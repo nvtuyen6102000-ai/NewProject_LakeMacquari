@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 interface Booking {
   clientId: string;
-  name: string;
+  nickname: string;
   phone: string;
   date: string;
   time: string;
@@ -77,7 +77,7 @@ export default function StaffPage() {
   const filtered = bookings.filter(b => {
     const matchSearch = search === "" ||
       b.clientId.toLowerCase().includes(search.toLowerCase()) ||
-      b.name.toLowerCase().includes(search.toLowerCase());
+      b.nickname.toLowerCase().includes(search.toLowerCase());
     const matchStatus = filterStatus === "All" || (statuses[b.clientId] ?? "Pending") === filterStatus;
     return matchSearch && matchStatus;
   });
@@ -181,7 +181,7 @@ export default function StaffPage() {
                               className="font-mono font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-2 py-0.5 rounded text-xs transition-colors underline decoration-dotted"
                             >{b.clientId}</button>
                           </td>
-                          <td className="px-4 py-3 font-medium text-slate-800">{b.name}</td>
+                          <td className="px-4 py-3 font-medium text-slate-800">{b.nickname}</td>
                           <td className="px-4 py-3 text-gray-500">{b.phone}</td>
                           <td className="px-4 py-3 text-gray-700">{b.date}</td>
                           <td className="px-4 py-3 text-gray-700">{b.time}</td>

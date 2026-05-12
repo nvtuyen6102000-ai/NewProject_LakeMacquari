@@ -20,7 +20,7 @@ interface UserData {
   safetyB: string;
 }
 
-interface BookingForm { name: string; phone: string; date: string; time: string; }
+interface BookingForm { nickname: string; phone: string; date: string; time: string; }
 
 interface Recommendation {
   title: string; subtitle?: string; description: string; category: string;
@@ -97,7 +97,7 @@ export default function TriagePage() {
   });
   const [clientId, setClientId] = useState("");
   const [showBooking, setShowBooking] = useState(false);
-  const [booking, setBooking] = useState<BookingForm>({ name: "", phone: "", date: "", time: "" });
+  const [booking, setBooking] = useState<BookingForm>({ nickname: "", phone: "", date: "", time: "" });
   const [bookingDone, setBookingDone] = useState(false);
   const [personalCard, setPersonalCard] = useState<{ headline: string; message: string; theme: string; emoji: string } | null>(null);
   const [pendingRecs, setPendingRecs] = useState<Recommendation[] | null>(null);
@@ -139,7 +139,7 @@ export default function TriagePage() {
 
     const id = generateClientId();
     setClientId(id);
-    setBooking(b => ({ ...b, name: updated.nickname }));
+    setBooking(b => ({ ...b, nickname: updated.nickname }));
 
     // Save triage snapshot for staff view
     const snapshot = { clientId: id, triageData: updated, createdAt: new Date().toISOString() };
@@ -582,7 +582,7 @@ export default function TriagePage() {
                 <p className="font-semibold text-gray-800 text-sm">Book at Evolve Hub</p>
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Nickname</label>
-                  <input required type="text" value={booking.name} onChange={e => setBooking({ ...booking, name: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                  <input required type="text" value={booking.nickname} onChange={e => setBooking({ ...booking, nickname: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Phone number</label>
