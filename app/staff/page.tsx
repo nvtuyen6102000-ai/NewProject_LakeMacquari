@@ -103,9 +103,9 @@ export default function StaffPage() {
               </div>
             </Link>
           </div>
-          <a href="/triage" className="text-xs text-slate-400 hover:text-white border border-slate-600 px-3 py-1.5 rounded-lg transition-colors">
-            ← Client View
-          </a>
+          <Link href="/triage" className="text-xs text-slate-400 hover:text-white border border-slate-600 px-3 py-1.5 rounded-lg transition-colors">
+            + New Check-in
+          </Link>
         </div>
       </header>
 
@@ -169,7 +169,7 @@ export default function StaffPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 border-b border-gray-100">
                     <tr>
-                      {["Client ID", "Name", "Phone", "Date", "Time", "Submitted", "Status", ""].map(h => (
+                      {["Client ID", "Name", "Phone", "Date", "Time", "Submitted", "Status", "View", ""].map(h => (
                         <th key={h} className="text-left text-xs font-semibold text-gray-400 px-4 py-3">{h}</th>
                       ))}
                     </tr>
@@ -181,7 +181,7 @@ export default function StaffPage() {
                         <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3">
                             <button
-                              onClick={() => { const snap = clients.find(c => c.clientId === b.clientId); setSelectedClient(snap ?? null); setSelectedBooking(snap ? null : b); }}
+                              onClick={() => { setSelectedBooking(b); setSelectedClient(clients.find(c => c.clientId === b.clientId) ?? null); }}
                               className="font-mono font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-2 py-0.5 rounded text-xs transition-colors underline decoration-dotted"
                             >{b.clientId}</button>
                           </td>
@@ -198,6 +198,12 @@ export default function StaffPage() {
                             >
                               {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                             </select>
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => { setSelectedBooking(b); setSelectedClient(clients.find(c => c.clientId === b.clientId) ?? null); }}
+                              className="text-xs text-teal-600 hover:text-teal-800 font-semibold border border-teal-200 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-lg transition-colors"
+                            >View</button>
                           </td>
                           <td className="px-4 py-3">
                             <button
@@ -272,155 +278,139 @@ export default function StaffPage() {
         )}
       </main>
 
-      {/* ── CLIENT DETAIL MODAL ── */}
-      {selectedClient && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setSelectedClient(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
-              <div>
-                <p className="text-xs text-gray-400">Client ID</p>
-                <p className="font-mono font-bold text-teal-700 text-lg tracking-widest">{selectedClient.clientId}</p>
-              </div>
-              <button onClick={() => setSelectedClient(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
-            </div>
-
-            <div className="px-6 py-5 space-y-5">
-              {/* Basic info */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">About</p>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-400">Nickname</p>
-                    <p className="font-medium text-slate-700">{selectedClient.triageData.nickname || "—"}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-400">For</p>
-                    <p className="font-medium text-slate-700">{selectedClient.triageData.forSelf === "other" ? "Someone else" : "Themselves"}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-400">Age group</p>
-                    <p className="font-medium text-slate-700">{AGE_LABEL[selectedClient.triageData.ageGroup] ?? "—"}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-400">Gender</p>
-                    <p className="font-medium text-slate-700">{GENDER_LABEL[selectedClient.triageData.gender] ?? "—"}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Safety */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Safety check</p>
-                <div className={`rounded-lg px-3 py-2 text-sm ${selectedClient.triageData.safetyA === "now" ? "bg-red-50 text-red-700" : "bg-gray-50 text-slate-700"}`}>
-                  {SAFETY_LABEL[selectedClient.triageData.safetyA] ?? "—"}
-                  {selectedClient.triageData.safetyB && <span className="text-gray-400 ml-2 text-xs">· Acted on: {selectedClient.triageData.safetyB}</span>}
-                </div>
-              </div>
-
-              {/* Mood matrix */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Mood frequency</p>
-                <div className="space-y-1.5">
-                  {MOOD_ROWS.map((label, i) => {
-                    const val = selectedClient.triageData.mood[`m${i + 1}`];
-                    const isHigh = val >= 2;
-                    return (
-                      <div key={i} className="flex items-center gap-3">
-                        <span className="text-xs text-gray-500 w-36 flex-shrink-0">{label}</span>
-                        <div className="flex gap-1">
-                          {[0, 1, 2, 3].map(v => (
-                            <div key={v} className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${v === val ? (isHigh ? "bg-amber-400 text-white" : "bg-teal-500 text-white") : "bg-gray-100"}`}>
-                              {v === val && "✓"}
-                            </div>
-                          ))}
-                        </div>
-                        <span className="text-xs text-gray-400">{val >= 0 ? FREQ_COLS[val] : "—"}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Stressors */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Recent stressors</p>
-                {selectedClient.triageData.stressors.length === 0 ? (
-                  <p className="text-sm text-gray-400">None selected</p>
-                ) : (
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedClient.triageData.stressors.map(s => (
-                      <span key={s} className="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full capitalize">{s.replace("_", " ")}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Background */}
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Background</p>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-400">Previous support</p>
-                    <p className="font-medium text-slate-700">{SUPPORT_LABEL[selectedClient.triageData.prevSupport] ?? "—"}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-400">NDIS participant</p>
-                    <p className="font-medium text-slate-700">{selectedClient.triageData.isNDIS === "yes" ? "Yes" : "No"}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recommendations */}
-              {selectedClient.recommendations && selectedClient.recommendations.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Recommendations shown</p>
-                  <div className="space-y-2">
-                    {selectedClient.recommendations.map((r, i) => (
-                      <div key={i} className="bg-teal-50 border border-teal-100 rounded-lg px-3 py-2">
-                        <p className="text-xs font-semibold text-teal-700">{r.category}</p>
-                        <p className="text-sm font-medium text-slate-700">{r.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{r.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <p className="text-xs text-gray-400 text-center pt-2">
-                Submitted {new Date(selectedClient.createdAt).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── BOOKING-ONLY MODAL (no triage snapshot) ── */}
+      {/* ── UNIFIED CLIENT MODAL ── */}
       {selectedBooking && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setSelectedBooking(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => { setSelectedBooking(null); setSelectedClient(null); }}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+
+            {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
               <div>
                 <p className="text-xs text-gray-400">Client ID</p>
                 <p className="font-mono font-bold text-teal-700 text-lg tracking-widest">{selectedBooking.clientId}</p>
               </div>
-              <button onClick={() => setSelectedBooking(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+              <button onClick={() => { setSelectedBooking(null); setSelectedClient(null); }} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
-            <div className="px-6 py-5 space-y-3">
-              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">No triage data found — client may not have completed the check-in.</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                {[
-                  { label: "Nickname", value: selectedBooking.nickname },
-                  { label: "Phone", value: selectedBooking.phone },
-                  { label: "Date", value: selectedBooking.date },
-                  { label: "Time", value: selectedBooking.time },
-                ].map(r => (
-                  <div key={r.label} className="bg-gray-50 rounded-lg px-3 py-2">
-                    <p className="text-xs text-gray-400">{r.label}</p>
-                    <p className="font-medium text-slate-700">{r.value || "—"}</p>
-                  </div>
-                ))}
+
+            <div className="px-6 py-5 space-y-5">
+
+              {/* Booking info */}
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Appointment Booking</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {[
+                    { label: "Nickname", value: selectedBooking.nickname },
+                    { label: "Phone", value: selectedBooking.phone },
+                    { label: "Date", value: selectedBooking.date },
+                    { label: "Time", value: selectedBooking.time },
+                  ].map(r => (
+                    <div key={r.label} className="bg-gray-50 rounded-lg px-3 py-2">
+                      <p className="text-xs text-gray-400">{r.label}</p>
+                      <p className="font-medium text-slate-700">{r.value || "—"}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-400 mt-2">Submitted {new Date(selectedBooking.submittedAt).toLocaleString()}</p>
               </div>
-              <p className="text-xs text-gray-400 pt-1">Submitted {new Date(selectedBooking.submittedAt).toLocaleString()}</p>
+
+              {/* Triage data */}
+              {!selectedClient ? (
+                <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">No triage check-in found for this client.</p>
+              ) : (
+                <>
+                  {/* About */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Check-in Answers</p>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="bg-gray-50 rounded-lg px-3 py-2">
+                        <p className="text-xs text-gray-400">Seeking help for</p>
+                        <p className="font-medium text-slate-700">{selectedClient.triageData.forSelf === "other" ? "Someone else" : "Themselves"}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg px-3 py-2">
+                        <p className="text-xs text-gray-400">Age group</p>
+                        <p className="font-medium text-slate-700">{AGE_LABEL[selectedClient.triageData.ageGroup] ?? "—"}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg px-3 py-2">
+                        <p className="text-xs text-gray-400">Gender</p>
+                        <p className="font-medium text-slate-700">{GENDER_LABEL[selectedClient.triageData.gender] ?? "—"}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg px-3 py-2">
+                        <p className="text-xs text-gray-400">NDIS participant</p>
+                        <p className="font-medium text-slate-700">{selectedClient.triageData.isNDIS === "yes" ? "Yes" : "No"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Safety */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Safety Check</p>
+                    <div className={`rounded-lg px-3 py-2 text-sm ${selectedClient.triageData.safetyA === "now" ? "bg-red-50 text-red-700 border border-red-200" : "bg-gray-50 text-slate-700"}`}>
+                      {SAFETY_LABEL[selectedClient.triageData.safetyA] ?? "—"}
+                      {selectedClient.triageData.safetyB && <span className="text-gray-400 ml-2 text-xs">· Acted on: {selectedClient.triageData.safetyB}</span>}
+                    </div>
+                  </div>
+
+                  {/* Mood */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Mood Frequency</p>
+                    <div className="space-y-1.5">
+                      {MOOD_ROWS.map((label, i) => {
+                        const val = selectedClient.triageData.mood[`m${i + 1}`];
+                        const isHigh = val >= 2;
+                        return (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-xs text-gray-500 w-36 flex-shrink-0">{label}</span>
+                            <div className="flex gap-1">
+                              {[0, 1, 2, 3].map(v => (
+                                <div key={v} className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${v === val ? (isHigh ? "bg-amber-400 text-white" : "bg-teal-500 text-white") : "bg-gray-100"}`}>
+                                  {v === val && "✓"}
+                                </div>
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-400">{val >= 0 ? FREQ_COLS[val] : "—"}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Stressors */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Recent Stressors</p>
+                    {selectedClient.triageData.stressors.length === 0 ? (
+                      <p className="text-sm text-gray-400">None selected</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedClient.triageData.stressors.map(s => (
+                          <span key={s} className="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full capitalize">{s.replace("_", " ")}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Previous support */}
+                  <div>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Previous Support</p>
+                    <div className="bg-gray-50 rounded-lg px-3 py-2 text-sm text-slate-700">{SUPPORT_LABEL[selectedClient.triageData.prevSupport] ?? "—"}</div>
+                  </div>
+
+                  {/* Recommendations */}
+                  {selectedClient.recommendations && selectedClient.recommendations.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Recommendations Shown</p>
+                      <div className="space-y-2">
+                        {selectedClient.recommendations.map((r, i) => (
+                          <div key={i} className="bg-teal-50 border border-teal-100 rounded-lg px-3 py-2">
+                            <p className="text-xs font-semibold text-teal-700">{r.category}</p>
+                            <p className="text-sm font-medium text-slate-700">{r.title}</p>
+                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{r.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
