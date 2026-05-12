@@ -616,6 +616,55 @@ export default function TriagePage() {
                   </div>
                 </div>
 
+                {/* ── Book appointment ── */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                  {!showBooking ? (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-slate-700 text-sm">Book an appointment at Evolve Hub</p>
+                        <p className="text-gray-400 text-xs mt-0.5">We'll get back to you within 3 working days</p>
+                      </div>
+                      <button onClick={() => setShowBooking(true)} className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors flex-shrink-0">
+                        Book Now →
+                      </button>
+                    </div>
+                  ) : bookingDone ? (
+                    <div className="text-center py-2">
+                      <p className="text-teal-700 font-semibold text-sm mb-1">✓ Appointment requested</p>
+                      <p className="text-gray-500 text-xs">Reference: <span className="font-mono font-bold text-teal-700">{refName}</span> · The Hub team will confirm your booking.</p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleBookingSubmit} className="space-y-3">
+                      <p className="font-semibold text-slate-700 text-sm">Book at Evolve Hub</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Nickname</label>
+                          <input required type="text" value={booking.nickname} onChange={e => setBooking({ ...booking, nickname: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Phone</label>
+                          <input required type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} placeholder="04XX XXX XXX" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Date</label>
+                          <input required type="date" value={booking.date} min={new Date().toISOString().split("T")[0]} onChange={e => setBooking({ ...booking, date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Time</label>
+                          <select required value={booking.time} onChange={e => setBooking({ ...booking, time: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 bg-white text-gray-800">
+                            <option value="">Select...</option>
+                            {["9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","1:00 PM","1:30 PM","2:00 PM","2:30 PM","3:00 PM","3:30 PM","4:00 PM","4:30 PM"].map(t => <option key={t}>{t}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <button type="button" onClick={() => setShowBooking(false)} className="flex-1 border border-gray-200 text-gray-500 text-sm py-2 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button type="submit" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors">Submit</button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+
                 {/* ── Tips ── */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                   <p className="text-sm font-semibold text-slate-700 mb-4">Better mental health tips for you</p>
@@ -668,55 +717,6 @@ export default function TriagePage() {
                       ))}
                     </div>
                   </div>
-                </div>
-
-                {/* ── Book appointment ── */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                  {!showBooking ? (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-slate-700 text-sm">Book an appointment at Evolve Hub</p>
-                        <p className="text-gray-400 text-xs mt-0.5">We'll get back to you within 3 working days</p>
-                      </div>
-                      <button onClick={() => setShowBooking(true)} className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors flex-shrink-0">
-                        Book Now →
-                      </button>
-                    </div>
-                  ) : bookingDone ? (
-                    <div className="text-center py-2">
-                      <p className="text-teal-700 font-semibold text-sm mb-1">✓ Appointment requested</p>
-                      <p className="text-gray-500 text-xs">Reference: <span className="font-mono font-bold text-teal-700">{refName}</span> · The Hub team will confirm your booking.</p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleBookingSubmit} className="space-y-3">
-                      <p className="font-semibold text-slate-700 text-sm">Book at Evolve Hub</p>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">Nickname</label>
-                          <input required type="text" value={booking.nickname} onChange={e => setBooking({ ...booking, nickname: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">Phone</label>
-                          <input required type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} placeholder="04XX XXX XXX" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">Date</label>
-                          <input required type="date" value={booking.date} min={new Date().toISOString().split("T")[0]} onChange={e => setBooking({ ...booking, date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-gray-400 mb-1">Time</label>
-                          <select required value={booking.time} onChange={e => setBooking({ ...booking, time: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 bg-white text-gray-800">
-                            <option value="">Select...</option>
-                            {["9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","1:00 PM","1:30 PM","2:00 PM","2:30 PM","3:00 PM","3:30 PM","4:00 PM","4:30 PM"].map(t => <option key={t}>{t}</option>)}
-                          </select>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 pt-1">
-                        <button type="button" onClick={() => setShowBooking(false)} className="flex-1 border border-gray-200 text-gray-500 text-sm py-2 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-                        <button type="submit" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors">Submit</button>
-                      </div>
-                    </form>
-                  )}
                 </div>
 
                 <button onClick={resetAll} className="w-full text-gray-400 text-xs underline hover:text-gray-600 py-2">Start over</button>
