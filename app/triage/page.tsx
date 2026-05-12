@@ -32,6 +32,44 @@ interface Recommendation {
 
 function generateClientId() { return Math.random().toString(36).substring(2, 6).toUpperCase(); }
 
+const REF_A = ["Lake","River","Golden","Silver","Forest","Ocean","Storm","Crystal","Dawn","Valley"];
+const REF_B = ["Leaf","Stone","Ridge","Shore","Crest","Field","Creek","Peak","Breeze","Haven"];
+function generateRefName() {
+  return REF_A[Math.floor(Math.random()*REF_A.length)] + " " + REF_B[Math.floor(Math.random()*REF_B.length)];
+}
+
+function calcWellbeingScore(mood: MoodScores): number {
+  const vals = Object.values(mood).filter(v => v >= 0);
+  if (!vals.length) return 70;
+  const total = vals.reduce((a, b) => a + b, 0);
+  return Math.round(((vals.length * 3 - total) / (vals.length * 3)) * 100);
+}
+
+function scoreLabel(score: number): { label: string; color: string; bar: string } {
+  if (score >= 80) return { label: "Doing Well",              color: "text-emerald-700", bar: "bg-emerald-500" };
+  if (score >= 60) return { label: "Facing Some Challenges",  color: "text-amber-700",   bar: "bg-amber-400" };
+  if (score >= 40) return { label: "Needs Support",           color: "text-orange-700",  bar: "bg-orange-400" };
+  return             { label: "Needs Immediate Support",      color: "text-red-700",     bar: "bg-red-500" };
+}
+
+const TIPS: Record<string, { title: string; steps: string[] }[]> = {
+  high: [
+    { title: "Keep your routine strong", steps: ["Maintain regular sleep/wake times", "Stay connected with people you trust", "Schedule activities that bring you joy"] },
+    { title: "Build your resilience toolkit", steps: ["Try 5 minutes of mindfulness daily", "Notice and write down 3 good things each day", "Reach out to a friend this week"] },
+    { title: "Stay proactive", steps: ["Check in with yourself weekly", "Know your early warning signs", "Keep Evolve Hub's number handy"] },
+  ],
+  mid: [
+    { title: "Build calm and confidence", steps: ["Practice slow breathing when overwhelmed", "Set one small, achievable goal today", "Limit news/social media before bed"] },
+    { title: "Strengthen your connections", steps: ["Reach out to one person you trust", "Join a local group or activity", "Consider talking to someone at Evolve Hub"] },
+    { title: "Boost your energy", steps: ["Set a consistent bedtime", "Get outside for 10 minutes daily", "Limit alcohol — it worsens low mood"] },
+  ],
+  low: [
+    { title: "Reach out — you don't have to do this alone", steps: ["Call or visit Evolve Hub today", "Tell one trusted person how you feel", "Save Lifeline (13 11 14) in your phone"] },
+    { title: "Small steps matter", steps: ["Focus on one hour at a time", "Eat something, even if small", "Step outside, even briefly"] },
+    { title: "Professional support helps", steps: ["Book an appointment at Evolve Hub", "Ask your GP for a mental health care plan", "Try Beyond Blue's online chat"] },
+  ],
+};
+
 const AGE_GROUPS = [
   { value: "child", label: "Under 12" },
   { value: "teen", label: "12–17" },
@@ -96,6 +134,7 @@ export default function TriagePage() {
     stressors: [], prevSupport: "", isNDIS: "", safetyA: "", safetyB: "",
   });
   const [clientId, setClientId] = useState("");
+  const [refName, setRefName] = useState("");
   const [showBooking, setShowBooking] = useState(false);
   const [booking, setBooking] = useState<BookingForm>({ name: "", phone: "", date: "", time: "" });
   const [bookingDone, setBookingDone] = useState(false);
@@ -139,6 +178,7 @@ export default function TriagePage() {
 
     const id = generateClientId();
     setClientId(id);
+    setRefName(generateRefName());
     setBooking(b => ({ ...b, name: updated.nickname }));
 
     // Save triage snapshot for staff view
@@ -171,7 +211,7 @@ export default function TriagePage() {
     setStep("safety");
     setData({ nickname: "", forSelf: "", ageGroup: "", gender: "", mood: { m1: -1, m2: -1, m3: -1, m4: -1, m5: -1 }, stressors: [], prevSupport: "", isNDIS: "", safetyA: "", safetyB: "" });
     setPersonalCard(null); setPendingRecs(null); setRecommendations([]);
-    setClientId(""); setShowBooking(false); setBookingDone(false);
+    setClientId(""); setRefName(""); setShowBooking(false); setBookingDone(false);
   }
 
   const chipBase = "px-4 py-2.5 rounded-full border-2 text-sm font-medium cursor-pointer transition-all select-none";
@@ -511,108 +551,175 @@ export default function TriagePage() {
         )}
 
         {/* ── RESULT ── */}
-        {step === "result" && (
-          <div className="bg-white rounded-2xl shadow-md p-7">
-            <div className="text-center mb-6">
-              <div className="text-4xl mb-3">💚</div>
-              <h2 className="text-xl font-bold text-slate-800 mb-1">
-                {data.forSelf === "other" ? "Recommended services for your person" : `Your recommended services${data.nickname ? `, ${data.nickname}` : ""}`}
-              </h2>
-              <p className="text-gray-500 text-sm">Based on your answers, here are 3 services from the Evolve Hub best suited to your needs.</p>
-              {clientId && (
-                <div className="mt-2 inline-flex items-center gap-1.5 bg-gray-100 rounded-full px-3 py-1">
-                  <span className="text-gray-400 text-xs">Your ID:</span>
-                  <span className="font-mono font-bold text-gray-700 text-sm tracking-widest">{clientId}</span>
-                </div>
-              )}
-            </div>
+        {step === "result" && (() => {
+            const score = calcWellbeingScore(data.mood);
+            const { label, color, bar } = scoreLabel(score);
+            const tipSet = score >= 80 ? TIPS.high : score >= 50 ? TIPS.mid : TIPS.low;
+            return (
+              <div className="space-y-4">
 
-            <div className="flex gap-4 mb-5 items-stretch">
-              {recommendations.map((r, i) => {
-                const s = getCategoryStyle(r.category);
-                return (
-                  <div key={i} className={`rounded-2xl border-2 p-5 flex-1 flex flex-col ${s.card}`}>
-                    <div className="flex items-start justify-between gap-2 mb-3">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.badge}`}>{r.category}</span>
-                      {r.status && <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${STATUS_STYLE[r.status] ?? "bg-gray-200 text-gray-600"}`}>{r.status}</span>}
+                {/* ── Score + Reference ── */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div className="flex-1 min-w-48">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Overall Wellbeing Score</p>
+                      <div className="flex items-center gap-3 mb-2">
+                        <p className="text-4xl font-bold text-slate-800">{score}%</p>
+                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${score >= 80 ? "bg-emerald-100 text-emerald-700" : score >= 60 ? "bg-amber-100 text-amber-700" : score >= 40 ? "bg-orange-100 text-orange-700" : "bg-red-100 text-red-700"}`}>{label}</span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div className={`h-2 rounded-full transition-all duration-700 ${bar}`} style={{ width: `${score}%` }} />
+                      </div>
                     </div>
-                    <p className="font-bold text-gray-900 text-base leading-tight">{r.title}</p>
-                    {r.subtitle && <p className={`text-xs font-medium mt-0.5 mb-2 ${s.badge.split(" ")[1]}`}>{r.subtitle}</p>}
-                    {r.provider_contact && <p className="text-gray-500 text-xs mb-2">{r.provider_contact}</p>}
-                    <p className="text-gray-600 text-xs leading-relaxed mb-3 flex-1">{r.description}</p>
-                    <div className="space-y-1.5 mb-3">
-                      {r.address && <p className="text-gray-500 text-xs flex items-center gap-1"><span>📍</span>{r.address}</p>}
-                      {r.areas && r.areas.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {r.areas.map(a => <span key={a} className="bg-white/60 border border-gray-200 text-gray-500 text-xs px-2 py-0.5 rounded-md">{a}</span>)}
+                    <div className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3 text-center min-w-36">
+                      <p className="text-xs text-teal-500 font-medium uppercase tracking-wide mb-1">Your reference name</p>
+                      <p className="font-bold text-teal-800 text-lg leading-tight">{refName}</p>
+                      <p className="text-teal-500 text-xs mt-1">Mention this when you visit</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-400 text-xs mt-4 italic">Not a clinical diagnosis. These results are a general guide — please speak with a professional if you have concerns.</p>
+                </div>
+
+                {/* ── Recommended Services ── */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                  <p className="text-sm font-semibold text-slate-700 mb-4">
+                    {data.forSelf === "other" ? "Recommended services for your person" : "Your recommended services"}
+                  </p>
+                  <div className="flex gap-3 items-stretch">
+                    {recommendations.map((r, i) => {
+                      const s = getCategoryStyle(r.category);
+                      return (
+                        <div key={i} className={`rounded-xl border-2 p-4 flex-1 flex flex-col ${s.card}`}>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.badge}`}>{r.category}</span>
+                            {r.status && <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${STATUS_STYLE[r.status] ?? "bg-gray-200 text-gray-600"}`}>{r.status}</span>}
+                          </div>
+                          <p className="font-bold text-gray-900 text-sm leading-tight">{r.title}</p>
+                          {r.provider_contact && <p className="text-gray-400 text-xs mt-0.5 mb-1">{r.provider_contact}</p>}
+                          <p className="text-gray-600 text-xs leading-relaxed mb-3 flex-1">{r.description}</p>
+                          <div className="space-y-1 mb-3">
+                            {r.address && <p className="text-gray-400 text-xs flex items-center gap-1">📍 {r.address}</p>}
+                            {r.phone && <p className="text-gray-400 text-xs flex items-center gap-1">📞 {r.phone}</p>}
+                            {r.wait_time && <p className="text-gray-400 text-xs flex items-center gap-1">⏱ {r.wait_time}</p>}
+                          </div>
+                          <a href={r.href} target={r.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
+                            onClick={r.href === "/chat" ? e => { e.preventDefault(); router.push("/chat"); } : undefined}
+                            className={`inline-block text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${s.btn}`}>
+                            {r.action} →
+                          </a>
                         </div>
-                      )}
-                      {r.phone && <p className="text-gray-500 text-xs flex items-center gap-1"><span>📞</span>{r.phone}</p>}
-                      {r.wait_time && <p className="text-gray-500 text-xs flex items-center gap-1"><span>⏱</span>Wait: {r.wait_time}</p>}
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Tips ── */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                  <p className="text-sm font-semibold text-slate-700 mb-4">Better mental health tips for you</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    {tipSet.map((tip, i) => (
+                      <div key={i} className="bg-slate-50 rounded-xl p-4">
+                        <p className="text-xs font-bold text-teal-700 mb-2">{i + 1}. {tip.title}</p>
+                        <ul className="space-y-1">
+                          {tip.steps.map((s, j) => (
+                            <li key={j} className="text-xs text-gray-500 flex gap-1.5"><span className="text-teal-400 flex-shrink-0">·</span>{s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ── Evolve Hub + Crisis side by side ── */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-teal-700 rounded-2xl p-5 text-white">
+                    <p className="font-bold text-base mb-1">Evolve Mental Health Hub</p>
+                    <p className="text-teal-200 text-xs mb-3">Free, walk-in support — no appointment needed</p>
+                    <ul className="text-xs text-teal-100 space-y-1 mb-4">
+                      <li>· Free information, advice & referral</li>
+                      <li>· Trained support staff</li>
+                      <li>· Follow-up care</li>
+                      <li>· Walk-in, phone or email</li>
+                    </ul>
+                    <div className="space-y-1 text-xs">
+                      <p className="flex items-center gap-1.5">📍 <a href="https://maps.google.com/?q=54+Ridley+St+Charlestown+NSW" target="_blank" rel="noopener" className="underline">54 Ridley St, Charlestown NSW</a></p>
+                      <p className="flex items-center gap-1.5">📞 <a href="tel:0240961100" className="underline">02 4096 1100</a></p>
+                      <p className="flex items-center gap-1.5">🌐 <a href="https://connectedtocare.com.au/evolve-hub" target="_blank" rel="noopener" className="underline">connectedtocare.com.au/evolve-hub</a></p>
                     </div>
-                    <a
-                      href={r.href}
-                      target={r.href.startsWith("http") ? "_blank" : undefined}
-                      rel="noopener noreferrer"
-                      onClick={r.href === "/chat" ? e => { e.preventDefault(); router.push("/chat"); } : undefined}
-                      className={`inline-block text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors ${s.btn}`}
-                    >{r.action} →</a>
                   </div>
-                );
-              })}
-            </div>
 
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4 text-xs text-red-600 flex gap-2 items-start">
-              <span>⚠️</span>
-              <span>These recommendations are not a clinical assessment. If your needs change or you feel unsafe, call Lifeline <a href="tel:131114" className="font-bold underline">13 11 14</a> or <a href="tel:000" className="font-bold underline">000</a>.</span>
-            </div>
-
-            {!showBooking ? (
-              <button onClick={() => setShowBooking(true)} className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-xl transition-colors mb-3">
-                Make an Appointment
-              </button>
-            ) : bookingDone ? (
-              <div className="bg-teal-50 border border-teal-200 rounded-xl p-4 mb-3 text-center">
-                <p className="text-teal-700 font-semibold text-sm mb-1">Appointment requested!</p>
-                <p className="text-teal-600 text-xs">Reference ID: <span className="font-mono font-bold">{clientId}</span></p>
-                <p className="text-gray-400 text-xs mt-1">The Hub team will confirm your booking.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleBookingSubmit} className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-3 space-y-3">
-                <p className="font-semibold text-gray-800 text-sm">Book at Evolve Hub</p>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Nickname</label>
-                  <input required type="text" value={booking.name} onChange={e => setBooking({ ...booking, name: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Phone number</label>
-                  <input required type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} placeholder="04XX XXX XXX" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="block text-xs text-gray-500 mb-1">Date</label>
-                    <input required type="date" value={booking.date} min={new Date().toISOString().split("T")[0]} onChange={e => setBooking({ ...booking, date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-xs text-gray-500 mb-1">Time</label>
-                    <select required value={booking.time} onChange={e => setBooking({ ...booking, time: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 bg-white">
-                      <option value="">Select...</option>
-                      {["9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","1:00 PM","1:30 PM","2:00 PM","2:30 PM","3:00 PM","3:30 PM","4:00 PM","4:30 PM"].map(t => (
-                        <option key={t} value={t}>{t}</option>
+                  <div className="bg-slate-800 rounded-2xl p-5 text-white">
+                    <p className="font-bold text-base mb-3">24/7 Crisis Support</p>
+                    <div className="space-y-2 text-xs">
+                      {[
+                        { name: "Lifeline", detail: "13 11 14", href: "tel:131114" },
+                        { name: "Beyond Blue", detail: "1300 22 4636", href: "tel:1300224636" },
+                        { name: "Suicide Call Back", detail: "1300 659 467", href: "tel:1300659467" },
+                        { name: "Emergency", detail: "000", href: "tel:000" },
+                        { name: "Mental Health Line", detail: "1800 011 511", href: "tel:1800011511" },
+                      ].map(c => (
+                        <a key={c.name} href={c.href} className="flex items-center justify-between bg-white/10 hover:bg-white/20 rounded-lg px-3 py-2 transition-colors">
+                          <span className="text-slate-300">{c.name}</span>
+                          <span className="font-bold text-white">{c.detail}</span>
+                        </a>
                       ))}
-                    </select>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => setShowBooking(false)} className="flex-1 border border-gray-200 text-gray-500 text-sm py-2 rounded-lg hover:bg-gray-100 transition-colors">Cancel</button>
-                  <button type="submit" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors">Submit</button>
-                </div>
-              </form>
-            )}
 
-            <button onClick={resetAll} className="w-full text-gray-400 text-xs underline hover:text-gray-600 py-2">Start over</button>
-          </div>
-        )}
+                {/* ── Book appointment ── */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                  {!showBooking ? (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-slate-700 text-sm">Book an appointment at Evolve Hub</p>
+                        <p className="text-gray-400 text-xs mt-0.5">We'll get back to you within 3 working days</p>
+                      </div>
+                      <button onClick={() => setShowBooking(true)} className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors flex-shrink-0">
+                        Book Now →
+                      </button>
+                    </div>
+                  ) : bookingDone ? (
+                    <div className="text-center py-2">
+                      <p className="text-teal-700 font-semibold text-sm mb-1">✓ Appointment requested</p>
+                      <p className="text-gray-500 text-xs">Reference: <span className="font-mono font-bold text-teal-700">{refName}</span> · The Hub team will confirm your booking.</p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleBookingSubmit} className="space-y-3">
+                      <p className="font-semibold text-slate-700 text-sm">Book at Evolve Hub</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Nickname</label>
+                          <input required type="text" value={booking.name} onChange={e => setBooking({ ...booking, name: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Phone</label>
+                          <input required type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} placeholder="04XX XXX XXX" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Date</label>
+                          <input required type="date" value={booking.date} min={new Date().toISOString().split("T")[0]} onChange={e => setBooking({ ...booking, date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Time</label>
+                          <select required value={booking.time} onChange={e => setBooking({ ...booking, time: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 bg-white">
+                            <option value="">Select...</option>
+                            {["9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","1:00 PM","1:30 PM","2:00 PM","2:30 PM","3:00 PM","3:30 PM","4:00 PM","4:30 PM"].map(t => <option key={t}>{t}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 pt-1">
+                        <button type="button" onClick={() => setShowBooking(false)} className="flex-1 border border-gray-200 text-gray-500 text-sm py-2 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button type="submit" className="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold py-2 rounded-lg transition-colors">Submit</button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+
+                <button onClick={resetAll} className="w-full text-gray-400 text-xs underline hover:text-gray-600 py-2">Start over</button>
+              </div>
+            );
+          })()}
 
         <p className="text-center text-gray-400 text-xs mt-6">Anonymous · Not a substitute for professional care · LMNSPN 2026</p>
       </main>
