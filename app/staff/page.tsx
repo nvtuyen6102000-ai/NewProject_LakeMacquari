@@ -145,12 +145,12 @@ export default function StaffPage() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search by name or client ID..."
-                className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm w-72 focus:outline-none focus:border-teal-400 bg-white"
+                className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm w-72 focus:outline-none focus:border-teal-400 bg-white text-gray-800 placeholder:text-gray-400"
               />
               <select
                 value={filterStatus}
                 onChange={e => setFilterStatus(e.target.value)}
-                className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white focus:outline-none focus:border-teal-400"
+                className="border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-800 focus:outline-none focus:border-teal-400"
               >
                 <option value="All">All statuses</option>
                 {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
