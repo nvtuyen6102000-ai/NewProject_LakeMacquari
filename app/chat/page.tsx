@@ -95,11 +95,13 @@ export default function ChatPage() {
       {/* Header */}
       <header className="bg-white border-b px-4 py-3 flex items-center gap-3">
         <Link href="/" className="text-gray-400 hover:text-gray-600 text-xl">←</Link>
-        <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white text-sm font-bold">E</div>
-        <div>
-          <p className="font-semibold text-gray-800 text-sm">Evolve Support Assistant</p>
-          <p className="text-xs text-green-500">● Online · Anonymous</p>
-        </div>
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white text-sm font-bold">E</div>
+          <div>
+            <p className="font-semibold text-gray-800 text-sm">Evolve Support Assistant</p>
+            <p className="text-xs text-green-500">● Online · Anonymous</p>
+          </div>
+        </Link>
       </header>
 
       <div className="flex flex-1 max-w-5xl mx-auto w-full gap-4 p-4">

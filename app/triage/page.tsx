@@ -223,11 +223,13 @@ export default function TriagePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50">
       <header className="bg-teal-700 text-white shadow-lg sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3.5 flex items-center gap-3">
-          <div className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center text-lg flex-shrink-0">🧭</div>
-          <div>
-            <h1 className="font-bold text-sm leading-tight">Evolve Navigator</h1>
-            <p className="text-teal-200 text-xs">Lake Macquarie & Newcastle Suicide Prevention Network</p>
-          </div>
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center text-lg flex-shrink-0">🧭</div>
+            <div>
+              <h1 className="font-bold text-sm leading-tight">Evolve Navigator</h1>
+              <p className="text-teal-200 text-xs">Lake Macquarie & Newcastle Suicide Prevention Network</p>
+            </div>
+          </Link>
         </div>
       </header>
 

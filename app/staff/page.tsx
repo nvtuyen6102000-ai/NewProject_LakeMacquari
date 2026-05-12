@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface Booking {
@@ -93,11 +94,13 @@ export default function StaffPage() {
       <header className="bg-slate-800 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-teal-500 rounded-xl flex items-center justify-center text-lg flex-shrink-0">🏥</div>
-            <div>
-              <h1 className="font-bold text-sm leading-tight">Evolve Hub — Staff Portal</h1>
-              <p className="text-slate-400 text-xs">Lake Macquarie & Newcastle Suicide Prevention Network</p>
-            </div>
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <div className="w-9 h-9 bg-teal-500 rounded-xl flex items-center justify-center text-lg flex-shrink-0">🏥</div>
+              <div>
+                <h1 className="font-bold text-sm leading-tight">Evolve Hub — Staff Portal</h1>
+                <p className="text-slate-400 text-xs">Lake Macquarie & Newcastle Suicide Prevention Network</p>
+              </div>
+            </Link>
           </div>
           <a href="/triage" className="text-xs text-slate-400 hover:text-white border border-slate-600 px-3 py-1.5 rounded-lg transition-colors">
             ← Client View
