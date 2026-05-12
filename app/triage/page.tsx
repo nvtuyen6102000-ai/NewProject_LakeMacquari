@@ -395,7 +395,7 @@ export default function TriagePage() {
                       value={data.nickname}
                       onChange={e => setData({ ...data, nickname: e.target.value })}
                       placeholder={data.forSelf === "other" ? "e.g. their nickname" : "What should we call you?"}
-                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-400"
+                      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white"
                     />
                   </div>
                   <div>
@@ -690,19 +690,19 @@ export default function TriagePage() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs text-gray-400 mb-1">Nickname</label>
-                          <input required type="text" value={booking.nickname} onChange={e => setBooking({ ...booking, nickname: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                          <input required type="text" value={booking.nickname} onChange={e => setBooking({ ...booking, nickname: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
                         </div>
                         <div>
                           <label className="block text-xs text-gray-400 mb-1">Phone</label>
-                          <input required type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} placeholder="04XX XXX XXX" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                          <input required type="tel" value={booking.phone} onChange={e => setBooking({ ...booking, phone: e.target.value })} placeholder="04XX XXX XXX" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
                         </div>
                         <div>
                           <label className="block text-xs text-gray-400 mb-1">Date</label>
-                          <input required type="date" value={booking.date} min={new Date().toISOString().split("T")[0]} onChange={e => setBooking({ ...booking, date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                          <input required type="date" value={booking.date} min={new Date().toISOString().split("T")[0]} onChange={e => setBooking({ ...booking, date: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 text-gray-800 bg-white" />
                         </div>
                         <div>
                           <label className="block text-xs text-gray-400 mb-1">Time</label>
-                          <select required value={booking.time} onChange={e => setBooking({ ...booking, time: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 bg-white">
+                          <select required value={booking.time} onChange={e => setBooking({ ...booking, time: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400 bg-white text-gray-800">
                             <option value="">Select...</option>
                             {["9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","1:00 PM","1:30 PM","2:00 PM","2:30 PM","3:00 PM","3:30 PM","4:00 PM","4:30 PM"].map(t => <option key={t}>{t}</option>)}
                           </select>

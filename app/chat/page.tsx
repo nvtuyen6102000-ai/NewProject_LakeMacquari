@@ -177,7 +177,7 @@ export default function ChatPage() {
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 placeholder="Type how you're feeling..."
                 disabled={loading}
-                className="flex-1 border border-gray-200 rounded-full px-5 py-3 text-sm focus:outline-none focus:border-teal-400 bg-white disabled:opacity-50"
+                className="flex-1 border border-gray-200 rounded-full px-5 py-3 text-sm focus:outline-none focus:border-teal-400 bg-white text-gray-800 placeholder:text-gray-400 disabled:opacity-50"
               />
               <button
                 onClick={sendMessage}
