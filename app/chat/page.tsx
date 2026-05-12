@@ -115,7 +115,7 @@ export default function ChatPage() {
           {/* Messages */}
           <div className="flex-1 bg-white rounded-2xl shadow-sm border overflow-y-auto p-4 space-y-4 min-h-[400px] max-h-[500px]">
             {!started ? (
-              <div className="flex flex-col items-center justify-center h-full text-center gap-4 py-8">
+              <div className="flex flex-col items-center justify-center text-center gap-4 py-16">
                 <div className="text-5xl">💚</div>
                 <h2 className="text-xl font-bold text-gray-800">Welcome to Evolve Connect</h2>
                 <p className="text-gray-500 text-sm max-w-xs">

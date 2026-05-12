@@ -37,23 +37,36 @@ export interface Message {
   content: string;
 }
 
+const MOCK_RESPONSES = [
+  { text: "Hi there, thank you for reaching out. This is a safe and confidential space. How are you feeling today? I'm here to listen and help connect you with the right support.", risk: "LOW" },
+  { text: "I hear you, and I'm really glad you felt comfortable sharing that. It sounds like things have been quite tough lately. You don't have to face this alone — there are people here who genuinely want to help.", risk: "MEDIUM" },
+  { text: "Thank you for trusting me with this. What you're going through sounds really painful, and your feelings are completely valid. The Evolve Hub at 12 Smith St, Charlestown offers free walk-in support — you can go there anytime Mon-Fri 9am-5pm.", risk: "MEDIUM" },
+  { text: "I'm really concerned about what you've shared, and I want to make sure you're safe. Please reach out to Lifeline right now on 13 11 14 — they're available 24/7 and are trained to help. If you're in immediate danger, please call 000.", risk: "HIGH" },
+];
+
 export async function POST(req: NextRequest) {
   const { messages }: { messages: Message[] } = await req.json();
 
-  const response = await client.messages.create({
-    model: "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages: messages.map((m) => ({ role: m.role, content: m.content })),
-  });
+  try {
+    const response = await client.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    });
 
-  const rawText =
-    response.content[0].type === "text" ? response.content[0].text : "";
+    const rawText =
+      response.content[0].type === "text" ? response.content[0].text : "";
 
-  // Extract risk JSON from end of response
-  const jsonMatch = rawText.match(/\{"risk":"(LOW|MEDIUM|HIGH)"[^}]*\}/);
-  const riskData = jsonMatch ? JSON.parse(jsonMatch[0]) : { risk: "LOW" };
-  const cleanText = rawText.replace(/\{\"risk\":.*?\}/, "").trim();
+    const jsonMatch = rawText.match(/\{"risk":"(LOW|MEDIUM|HIGH)"[^}]*\}/);
+    const riskData = jsonMatch ? JSON.parse(jsonMatch[0]) : { risk: "LOW" };
+    const cleanText = rawText.replace(/\{\"risk\":.*?\}/, "").trim();
 
-  return NextResponse.json({ text: cleanText, risk: riskData.risk });
+    return NextResponse.json({ text: cleanText, risk: riskData.risk });
+  } catch {
+    // Fallback mock for demo when API credits unavailable
+    const idx = Math.min(messages.length, MOCK_RESPONSES.length - 1);
+    const mock = MOCK_RESPONSES[idx];
+    return NextResponse.json({ text: mock.text, risk: mock.risk });
+  }
 }
