@@ -581,8 +581,8 @@ export default function TriagePage() {
               <form onSubmit={handleBookingSubmit} className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-3 space-y-3">
                 <p className="font-semibold text-gray-800 text-sm">Book at Evolve Hub</p>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Full name</label>
-                  <input required type="text" value={booking.name} onChange={e => setBooking({ ...booking, name: e.target.value })} placeholder="Your name" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
+                  <label className="block text-xs text-gray-500 mb-1">Nickname</label>
+                  <input required type="text" value={booking.name} onChange={e => setBooking({ ...booking, name: e.target.value })} placeholder="What should we call you?" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-400" />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Phone number</label>
