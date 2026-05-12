@@ -53,6 +53,7 @@ export default function StaffPage() {
   const [filterStatus, setFilterStatus] = useState("All");
   const [tab, setTab] = useState<"appointments" | "overview">("appointments");
   const [selectedClient, setSelectedClient] = useState<ClientSnapshot | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     const raw = localStorage.getItem("evolve_bookings");
@@ -180,7 +181,7 @@ export default function StaffPage() {
                         <tr key={i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                           <td className="px-4 py-3">
                             <button
-                              onClick={() => setSelectedClient(clients.find(c => c.clientId === b.clientId) ?? null)}
+                              onClick={() => { const snap = clients.find(c => c.clientId === b.clientId); setSelectedClient(snap ?? null); setSelectedBooking(snap ? null : b); }}
                               className="font-mono font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 px-2 py-0.5 rounded text-xs transition-colors underline decoration-dotted"
                             >{b.clientId}</button>
                           </td>
@@ -388,6 +389,38 @@ export default function StaffPage() {
               <p className="text-xs text-gray-400 text-center pt-2">
                 Submitted {new Date(selectedClient.createdAt).toLocaleString()}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── BOOKING-ONLY MODAL (no triage snapshot) ── */}
+      {selectedBooking && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setSelectedBooking(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div>
+                <p className="text-xs text-gray-400">Client ID</p>
+                <p className="font-mono font-bold text-teal-700 text-lg tracking-widest">{selectedBooking.clientId}</p>
+              </div>
+              <button onClick={() => setSelectedBooking(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+            </div>
+            <div className="px-6 py-5 space-y-3">
+              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">No triage data found — client may not have completed the check-in.</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                {[
+                  { label: "Nickname", value: selectedBooking.nickname },
+                  { label: "Phone", value: selectedBooking.phone },
+                  { label: "Date", value: selectedBooking.date },
+                  { label: "Time", value: selectedBooking.time },
+                ].map(r => (
+                  <div key={r.label} className="bg-gray-50 rounded-lg px-3 py-2">
+                    <p className="text-xs text-gray-400">{r.label}</p>
+                    <p className="font-medium text-slate-700">{r.value || "—"}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 pt-1">Submitted {new Date(selectedBooking.submittedAt).toLocaleString()}</p>
             </div>
           </div>
         </div>
