@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolve Navigator — Mental Health Service Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #0B6E5C;
+  --teal-light: #E6F4F1;
+  --teal-mid: #1A9B82;
+  --sand: #F5F0E8;
+  --sand-dark: #E8E0D0;
+  --text: #1C2220;
+  --muted: #6B7875;
+  --danger: #C0392B;
+  --danger-light: #FDECEA;
+  --info: #185FA5;
+  --info-light: #E8F1FB;
+  --warn: #7A4F00;
+  --warn-light: #FFF3DC;
+  --white: #FFFFFF;
+  --radius: 12px;
+  --radius-sm: 6px;
+  --shadow: 0 2px 12px rgba(11,110,92,.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--sand);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── Layout ── */
+.shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* ── Header ── */
+header {
+  background: var(--teal);
+  color: #fff;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,.18);
+}
+.header-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 18px 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.logo-mark {
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.logo-mark svg { width: 22px; height: 22px; }
+.header-text h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.header-text p {
+  font-size: 12px;
+  opacity: .75;
+  margin-top: 1px;
+}
+
+/* ── Progress ── */
+.progress-wrap {
+  padding: 20px 0 0;
+}
+.progress-bar {
+  height: 3px;
+  background: var(--sand-dark);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+.progress-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(11,110,92,.07);
+}
+
+/* ── Question blocks ── */
+.q-number {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 6px;
+}
+.q-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.q-hint {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* ── Chips ── */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip {
+  padding: 8px 16px;
+  border: 1.5px solid var(--sand-dark);
+  border-radius: 99px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text);
+  background: var(--sand);
+  transition: all .15s;
+  user-select: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.chip:hover { border-color: var(--teal-mid); color: var(--teal); }
+.chip.sel {
+  background: var(--teal);
+  color: #fff;
+  border-color: var(--teal);
+  font-weight: 500;
+}
+.chip.sel-danger {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+  font-weight: 500;
+}
+
+/* ── Mood matrix ── */
+.mood-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.mood-table thead th {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  text-align: center;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--sand-dark);
+}
+.mood-table thead th:first-child { text-align: left; }
+.mood-table tbody tr { border-bottom: 1px solid var(--sand-dark); }
+.mood-table tbody tr:last-child { border-bottom: none; }
+.mood-table td {
+  padding: 10px 4px;
+  font-size: 13px;
+}
+.mood-table td:first-child { color: var(--text); font-size: 13px; padding-left: 0; }
+.freq-cell {
+  text-align: center;
+  cursor: pointer;
+}
+.freq-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sand-dark);
+  margin: 0 auto;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  font-size: 11px;
+  color: var(--muted);
+}
+.freq-cell:hover .freq-dot { border-color: var(--teal-mid); }
+.freq-dot.sel { background: var(--teal); border-color: var(--teal); }
+.freq-dot.sel-hi { background: var(--warn); border-color: var(--warn); }
+.freq-dot.sel::after, .freq-dot.sel-hi::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+/* ── Crisis ── */
+.crisis-box {
+  background: var(--danger-light);
+  border: 1.5px solid var(--danger);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 16px;
+}
+.crisis-box h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  color: var(--danger);
+  margin-bottom: 10px;
+}
+.crisis-box p { font-size: 14px; color: #7B1A12; line-height: 1.7; }
+.crisis-link {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--danger);
+  margin: 4px 0;
+  text-decoration: none;
+}
+.crisis-link:hover { text-decoration: underline; }
+
+/* ── Safety sub-questions ── */
+.sub-q {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sand-dark);
+}
+.sub-q .q-text { font-size: 16px; margin-bottom: 10px; }
+
+/* ── CTA button ── */
+.cta-btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: var(--teal);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  letter-spacing: .02em;
+  transition: background .15s, transform .1s;
+  box-shadow: 0 4px 16px rgba(11,110,92,.25);
+  margin-top: 20px;
+}
+.cta-btn:hover { background: var(--teal-mid); }
+.cta-btn:active { transform: scale(.98); }
+
+/* ── Results ── */
+.results-header {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  margin: 32px 0 6px;
+  line-height: 1.2;
+}
+.results-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+.result-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(11,110,92,.07);
+  animation: fadeUp .35s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(12px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.result-card:nth-child(1) { animation-delay: .05s; }
+.result-card:nth-child(2) { animation-delay: .12s; }
+.result-card:nth-child(3) { animation-delay: .19s; }
+.result-card.top { border: 2px solid var(--teal); }
+
+.rank-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-bottom: 8px;
+}
+.rank-1 { background: var(--teal-light); color: var(--teal); }
+.rank-2 { background: var(--sand-dark); color: var(--muted); }
+.rank-3 { background: var(--sand-dark); color: var(--muted); }
+
+.result-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.result-desc { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
+.result-signal {
+  font-size: 12px;
+  color: var(--teal);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.score-bar-wrap { flex: 1; height: 5px; background: var(--sand-dark); border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; background: var(--teal); border-radius: 3px; transition: width .6s ease; }
+.score-num { font-size: 12px; color: var(--muted); min-width: 65px; text-align: right; }
+
+.breakdown { display: flex; flex-wrap: wrap; gap: 6px; }
+.breakdown-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--sand);
+  color: var(--muted);
+  border: 1px solid var(--sand-dark);
+}
+
+/* ── Reset ── */
+.reset-btn {
+  display: block;
+  margin: 24px auto 0;
+  padding: 10px 28px;
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--sand-dark);
+  border-radius: 99px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.reset-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ── Disclaimer ── */
+.disclaimer {
+  background: var(--info-light);
+  border-left: 3px solid var(--info);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--info);
+  line-height: 1.6;
+  margin-top: 24px;
+}
+
+/* ── Footer ── */
+footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 20px;
+  border-top: 1px solid var(--sand-dark);
+  margin-top: 40px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .mood-table thead th:not(:first-child):not(:last-child):nth-child(2),
+  .mood-table td:nth-child(2) { display: none; }
+  .card { padding: 18px 16px; }
+  .q-text { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+        <path d="M8 12h8M12 8v8"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Evolve Navigator</h1>
+      <p>Lake Macquarie &amp; Newcastle Suicide Prevention Network</p>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Answer the questions below to find the right support for you.</div>
+  </div>
+
+  <form id="survey" style="margin-top: 20px;" onsubmit="return false;">
+
+    <!-- Q1 -->
+    <div class="card" id="card-q1">
+      <div class="q-number">Question 1 of 8</div>
+      <div class="q-text">Who are you completing this for?</div>
+      <div class="q-hint">This helps us tailor the recommendations.</div>
+      <div class="chip-row" id="q1">
+        <span class="chip" data-val="self" onclick="pick('q1',this)">Myself</span>
+        <span class="chip" data-val="other" onclick="pick('q1',this)">Someone I'm worried about</span>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="card" id="card-q2">
+      <div class="q-number">Question 2 of 8</div>
+      <div class="q-text">What age group?</div>
+      <div class="q-hint">Some services are designed for specific age groups.</div>
+      <div class="chip-row" id="q2">
+        <span class="chip" data-val="child" onclick="pick('q2',this)">Under 12</span>
+        <span class="chip" data-val="teen" onclick="pick('q2',this)">12–17</span>
+        <span class="chip" data-val="young_adult" onclick="pick('q2',this)">18–24</span>
+        <span class="chip" data-val="adult" onclick="pick('q2',this)">25–64</span>
+        <span class="chip" data-val="older" onclick="pick('q2',this)">65+</span>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="card" id="card-q3">
+      <div class="q-number">Question 3 of 8</div>
+      <div class="q-text">How do you identify?</div>
+      <div class="q-hint">Some services are tailored to specific groups.</div>
+      <div class="chip-row" id="q3">
+        <span class="chip" data-val="male" onclick="pick('q3',this)">Man</span>
+        <span class="chip" data-val="female" onclick="pick('q3',this)">Woman</span>
+        <span class="chip" data-val="nonbinary" onclick="pick('q3',this)">Non-binary</span>
+        <span class="chip" data-val="undisclosed" onclick="pick('q3',this)">Prefer not to say</span>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="card" id="card-q4">
+      <div class="q-number">Question 4 of 8</div>
+      <div class="q-text">How often do you experience these feelings?</div>
+      <div class="q-hint">Select one answer per row.</div>
+      <table class="mood-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Never</th>
+            <th>Sometimes</th>
+            <th>Often</th>
+            <th>Always</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Overwhelmed or stressed</td>
+            <td class="freq-cell" onclick="freq('m1',this,0)"><div class="freq-dot" id="m1-0"></div></td>
+            <td class="freq-cell" onclick="freq('m1',this,1)"><div class="freq-dot" id="m1-1"></div></td>
+            <td class="freq-cell" onclick="freq('m1',this,2)"><div class="freq-dot" id="m1-2"></div></td>
+            <td class="freq-cell" onclick="freq('m1',this,3)"><div class="freq-dot" id="m1-3"></div></td>
+          </tr>
+          <tr>
+            <td>Sad or depressed</td>
+            <td class="freq-cell" onclick="freq('m2',this,0)"><div class="freq-dot" id="m2-0"></div></td>
+            <td class="freq-cell" onclick="freq('m2',this,1)"><div class="freq-dot" id="m2-1"></div></td>
+            <td class="freq-cell" onclick="freq('m2',this,2)"><div class="freq-dot" id="m2-2"></div></td>
+            <td class="freq-cell" onclick="freq('m2',this,3)"><div class="freq-dot" id="m2-3"></div></td>
+          </tr>
+          <tr>
+            <td>Anxious or worried</td>
+            <td class="freq-cell" onclick="freq('m3',this,0)"><div class="freq-dot" id="m3-0"></div></td>
+            <td class="freq-cell" onclick="freq('m3',this,1)"><div class="freq-dot" id="m3-1"></div></td>
+            <td class="freq-cell" onclick="freq('m3',this,2)"><div class="freq-dot" id="m3-2"></div></td>
+            <td class="freq-cell" onclick="freq('m3',this,3)"><div class="freq-dot" id="m3-3"></div></td>
+          </tr>
+          <tr>
+            <td>Irritable or angry</td>
+            <td class="freq-cell" onclick="freq('m4',this,0)"><div class="freq-dot" id="m4-0"></div></td>
+            <td class="freq-cell" onclick="freq('m4',this,1)"><div class="freq-dot" id="m4-1"></div></td>
+            <td class="freq-cell" onclick="freq('m4',this,2)"><div class="freq-dot" id="m4-2"></div></td>
+            <td class="freq-cell" onclick="freq('m4',this,3)"><div class="freq-dot" id="m4-3"></div></td>
+          </tr>
+          <tr>
+            <td>Lonely or isolated</td>
+            <td class="freq-cell" onclick="freq('m5',this,0)"><div class="freq-dot" id="m5-0"></div></td>
+            <td class="freq-cell" onclick="freq('m5',this,1)"><div class="freq-dot" id="m5-1"></div></td>
+            <td class="freq-cell" onclick="freq('m5',this,2)"><div class="freq-dot" id="m5-2"></div></td>
+            <td class="freq-cell" onclick="freq('m5',this,3)"><div class="freq-dot" id="m5-3"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Q5 -->
+    <div class="card" id="card-q5">
+      <div class="q-number">Question 5 of 8</div>
+      <div class="q-text">Have you experienced any of these recently?</div>
+      <div class="q-hint">Select all that apply.</div>
+      <div class="chip-row" id="q5">
+        <span class="chip" data-val="grief" onclick="multi(this)">Grief or loss</span>
+        <span class="chip" data-val="relationship" onclick="multi(this)">Relationship breakdown</span>
+        <span class="chip" data-val="financial" onclick="multi(this)">Financial stress</span>
+        <span class="chip" data-val="gambling" onclick="multi(this)">Gambling harm</span>
+        <span class="chip" data-val="aod" onclick="multi(this)">Alcohol or drugs</span>
+        <span class="chip" data-val="trauma" onclick="multi(this)">Past trauma or abuse</span>
+        <span class="chip" data-val="neurodiversity" onclick="multi(this)">Neurodiversity support</span>
+        <span class="chip" data-val="job_housing" onclick="multi(this)">Job or housing change</span>
+        <span class="chip" data-val="none" onclick="multiNone(this)">None of the above</span>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="card" id="card-q6">
+      <div class="q-number">Question 6 of 8</div>
+      <div class="q-text">Have you tried professional mental health support before?</div>
+      <div class="chip-row" id="q6">
+        <span class="chip" data-val="yes_helped" onclick="pick('q6',this)">Yes, and it helped</span>
+        <span class="chip" data-val="yes_not_helped" onclick="pick('q6',this)">Yes, but it didn't help</span>
+        <span class="chip" data-val="no" onclick="pick('q6',this)">No, not yet</span>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="card" id="card-q7">
+      <div class="q-number">Question 7 of 8</div>
+      <div class="q-text">Are you an NDIS participant?</div>
+      <div class="chip-row" id="q7">
+        <span class="chip" data-val="yes" onclick="pick('q7',this)">Yes</span>
+        <span class="chip" data-val="no" onclick="pick('q7',this)">No</span>
+      </div>
+    </div>
+
+    <!-- Q8 Safety -->
+    <div class="card" id="card-q8">
+      <div class="q-number">Question 8 of 8 — Safety check</div>
+      <div class="q-text">Sometimes people going through hard times have thoughts of ending their life. Has that ever been the case for you?</div>
+      <div class="q-hint">Your answer is confidential and helps us connect you with the right support.</div>
+      <div class="chip-row" id="q8a">
+        <span class="chip" data-val="never" onclick="safetyA(this,'never')">No, never</span>
+        <span class="chip" data-val="past" onclick="safetyA(this,'past')">In the past, not now</span>
+        <span class="chip" data-val="now" onclick="safetyA(this,'now')">I'm having these thoughts now</span>
+      </div>
+
+      <div id="q8b-wrap" style="display:none;" class="sub-q">
+        <div class="q-text">Have you ever acted on those thoughts?</div>
+        <div class="chip-row" id="q8b">
+          <span class="chip" data-val="no" onclick="pick('q8b',this)">No</span>
+          <span class="chip" data-val="yes" onclick="pick('q8b',this)">Yes</span>
+        </div>
+      </div>
+
+      <div id="crisis-panel" style="display:none;" class="crisis-box">
+        <h3>Please reach out for support right now</h3>
+        <p>It sounds like things are really difficult. Your safety matters. Please contact one of these services — they are available 24 hours a day, 7 days a week.</p>
+        <br>
+        <a class="crisis-link" href="tel:131114">📞 Lifeline — 13 11 14</a>
+        <a class="crisis-link" href="tel:000">🚨 Emergency — 000</a>
+        <a class="crisis-link" href="tel:1300659467">📞 Suicide Call Back Service — 1300 659 467</a>
+        <a class="crisis-link" href="tel:1300224636">📞 Beyond Blue — 1300 22 4636</a>
+        <br>
+        <p><em>This tool is not a crisis service. Please speak to a real person now. You don't have to face this alone.</em></p>
+      </div>
+    </div>
+
+    <div id="normal-flow">
+      <button class="cta-btn" onclick="calculate()">Find my top 3 services →</button>
+    </div>
+
+  </form>
+
+  <!-- Results -->
+  <div id="results-section" style="display:none;">
+    <div class="results-header" id="results-heading">Your recommended services</div>
+    <div class="results-sub" id="results-sub">Based on your answers, here are the three services from the Evolve Hub best suited to your needs.</div>
+    <div id="results-list"></div>
+    <div class="disclaimer">
+      <strong>Important:</strong> These recommendations are based on the information you provided and are intended to help you explore support options — they are not a clinical assessment or diagnosis. Please contact each service directly to confirm suitability. If your needs change or you feel unsafe at any time, please call Lifeline on 13 11 14 or Emergency Services on 000.
+    </div>
+    <button class="reset-btn" onclick="resetAll()">← Start again</button>
+  </div>
+
+</div>
+
+<footer>
+  Evolve Navigator · Lake Macquarie &amp; Newcastle Suicide Prevention Network · Not a crisis service
+</footer>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const state = {
+  q1:'', q2:'', q3:'', q5:[], q6:'', q7:'', q8a:'', q8b:'',
+  m1:-1, m2:-1, m3:-1, m4:-1, m5:-1
+};
+
+// ── Interaction handlers ───────────────────────────────────────────────────
+function pick(id, el) {
+  document.querySelectorAll('#'+id+' .chip').forEach(c => c.classList.remove('sel','sel-danger'));
+  el.classList.add('sel');
+  state[id] = el.dataset.val;
+  updateProgress();
+}
+
+function multi(el) {
+  document.querySelector('#q5 [data-val="none"]').classList.remove('sel');
+  el.classList.toggle('sel');
+  state.q5 = Array.from(document.querySelectorAll('#q5 .chip.sel')).map(c => c.dataset.val);
+  updateProgress();
+}
+
+function multiNone(el) {
+  document.querySelectorAll('#q5 .chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  state.q5 = ['none'];
+  updateProgress();
+}
+
+function freq(id, cell, v) {
+  for(let i=0;i<4;i++) {
+    const d = document.getElementById(id+'-'+i);
+    d.classList.remove('sel','sel-hi');
+  }
+  const dot = document.getElementById(id+'-'+v);
+  dot.classList.add(v >= 2 ? 'sel-hi' : 'sel');
+  state[id] = v;
+  updateProgress();
+}
+
+function safetyA(el, val) {
+  document.querySelectorAll('#q8a .chip').forEach(c => c.classList.remove('sel','sel-danger'));
+  state.q8a = val;
+  if(val === 'now') {
+    el.classList.add('sel-danger');
+    document.getElementById('crisis-panel').style.display = 'block';
+    document.getElementById('normal-flow').style.display = 'none';
+    document.getElementById('q8b-wrap').style.display = 'none';
+  } else {
+    el.classList.add('sel');
+    document.getElementById('crisis-panel').style.display = 'none';
+    document.getElementById('normal-flow').style.display = 'block';
+    document.getElementById('q8b-wrap').style.display = val === 'past' ? 'block' : 'none';
+  }
+  updateProgress();
+}
+
+// ── Progress ───────────────────────────────────────────────────────────────
+function countAnswered() {
+  let n = 0;
+  if(state.q1) n++;
+  if(state.q2) n++;
+  if(state.q3) n++;
+  const moodDone = [state.m1,state.m2,state.m3,state.m4,state.m5].filter(v=>v>=0).length;
+  if(moodDone >= 3) n++;
+  if(state.q5.length) n++;
+  if(state.q6) n++;
+  if(state.q7) n++;
+  if(state.q8a) n++;
+  return n;
+}
+
+function updateProgress() {
+  const n = countAnswered();
+  const pct = Math.round((n/8)*100);
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-label').textContent =
+    n === 8 ? 'All questions answered — tap the button below to see your recommendations.' :
+    n > 0 ? `${n} of 8 questions answered` : 'Answer the questions below to find the right support for you.';
+}
+
+// ── Services database ──────────────────────────────────────────────────────
+const SERVICES = [
+  {
+    id:'evolve', name:'Evolve Program',
+    desc:'Free information, advice, referral, follow-up care, and a personalised Pathways Plan. The best starting point if you\'re unsure where to go.',
+    anchor: true,
+    weights: { nav:10, mood:4, grief:4, relationship:4, aod:4, trauma:4, neurodiversity:4, gambling:4, youth:4, financial:4 },
+    eligAge:['child','teen','young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:true, online:false, ndis:false, nature:false
+  },
+  {
+    id:'kara', name:'Kara Thomson Psychology',
+    desc:'Clinical psychology for adults 18–90. Specialises in anger, aggression, personality disorders, forensic clients, and intellectual disability.',
+    weights: { anger:18, mood:8, relationship:6 },
+    eligAge:['young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:false, online:false, ndis:false, nature:false
+  },
+  {
+    id:'rosewood', name:'The Rosewood Centre',
+    desc:'Psychological services using CBT and ACT. Specialises in mood disorders, grief, addiction, relationship issues, and behaviours of concern.',
+    weights: { mood:16, grief:16, aod:12, relationship:12, anger:8 },
+    eligAge:['young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:false, online:false, ndis:false, nature:false
+  },
+  {
+    id:'sandwaves', name:'Sand Waves Counselling',
+    desc:'Sand play therapy and standard counselling. Particularly effective for trauma processing and those who prefer non-verbal approaches.',
+    weights: { trauma:14, mood:8, grief:8, neurodiversity:8 },
+    eligAge:['child','teen','young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:false, online:false, ndis:false, nature:false
+  },
+  {
+    id:'fearless', name:'Fearless Therapies',
+    desc:'Trauma-informed, neurodiversity-affirming counselling and mentoring. Nature-based and client-led. Supports children, teens, adults, and NDIS participants.',
+    weights: { trauma:18, neurodiversity:18, mood:8, grief:6, youth:10 },
+    eligAge:['child','teen','young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:false, online:false, ndis:true, nature:true
+  },
+  {
+    id:'well', name:'Well Education',
+    desc:'Preventative mental health and social-emotional learning programs for girls and young women. Builds emotional literacy, resilience, and confidence.',
+    weights: { youth:20, mood:8, loneliness:8 },
+    eligAge:['teen','young_adult'],
+    eligGender:['female'],
+    free:false, online:false, ndis:false, nature:false
+  },
+  {
+    id:'topblokes', name:'Top Blokes Foundation',
+    desc:'Mentoring programs for young males aged 10–24. Focuses on healthy masculinities, resilience, and life skills.',
+    weights: { youth:22, loneliness:10, mood:6 },
+    eligAge:['child','teen','young_adult'],
+    eligGender:['male'],
+    free:false, online:false, ndis:false, nature:false
+  },
+  {
+    id:'gambleaware', name:'GambleAware Hunter New England',
+    desc:'Free specialist gambling support for individuals, friends, and families. Includes counselling, financial counselling, SMART recovery, and self-exclusion.',
+    weights: { gambling:40, financial:12, relationship:8 },
+    eligAge:['child','teen','young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:true, online:false, ndis:false, nature:false
+  },
+  {
+    id:'brightfeathers', name:'Bright Feathers Counselling',
+    desc:'Inclusive therapy for all ages by a counsellor with lived neurodivergent experience. Offers walk-and-talk nature sessions.',
+    weights: { neurodiversity:18, trauma:10, mood:8, grief:6 },
+    eligAge:['child','teen','young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:false, online:false, ndis:false, nature:true
+  },
+  {
+    id:'constructive', name:'Constructive Thinking Counselling',
+    desc:'Face-to-face or online counselling covering AOD, addiction, disability support, life challenges, menopause, relationships, and suicide prevention.',
+    weights: { aod:18, relationship:14, grief:10, mood:10, trauma:8, financial:6, suicide_history:14 },
+    eligAge:['child','teen','young_adult','adult','older'],
+    eligGender:['male','female','nonbinary','undisclosed'],
+    free:false, online:true, ndis:true, nature:false
+  }
+];
+
+const KEY_LABELS = {
+  mood:'mood and emotional wellbeing', anger:'anger or irritability', grief:'grief and loss',
+  relationship:'relationships', aod:'alcohol or substance use', trauma:'trauma',
+  neurodiversity:'neurodiversity', gambling:'gambling', youth:'youth development',
+  loneliness:'loneliness and isolation', financial:'financial stress',
+  suicide_history:'suicide prevention history', nav:'service navigation'
+};
+
+// ── Algorithm ──────────────────────────────────────────────────────────────
+function calculate() {
+  const age = state.q2;
+  const gender = state.q3;
+  const stressors = state.q5;
+  const isNDIS = state.q7 === 'yes';
+  const prevSupport = state.q6;
+  const safetyHx = state.q8a === 'past';
+  const actedOn = state.q8b === 'yes';
+  const isCarer = state.q1 === 'other';
+
+  // Derive mood severity from frequency matrix
+  const m = [state.m1,state.m2,state.m3,state.m4,state.m5].map(v => Math.max(v,0));
+  const [stressed, sad, anxious, angry, lonely] = m;
+  const moodTotal = stressed + sad + anxious;
+
+  // Named signals derived from all inputs
+  const signals = {
+    nav:       (!age || !gender || !state.q6) ? 1 : 0,
+    mood:      moodTotal >= 4 ? 1 : 0,
+    anger:     angry >= 2 ? 1 : 0,
+    loneliness:lonely >= 2 ? 1 : 0,
+    grief:     stressors.includes('grief') ? 1 : 0,
+    relationship: stressors.includes('relationship') ? 1 : 0,
+    financial: stressors.includes('financial') ? 1 : 0,
+    gambling:  stressors.includes('gambling') ? 1 : 0,
+    aod:       stressors.includes('aod') ? 1 : 0,
+    trauma:    stressors.includes('trauma') ? 1 : 0,
+    neurodiversity: stressors.includes('neurodiversity') ? 1 : 0,
+    youth:     (age==='child'||age==='teen'||age==='young_adult') ? 1 : 0,
+    suicide_history: (safetyHx || actedOn) ? 1 : 0
+  };
+
+  const results = [];
+
+  SERVICES.forEach(svc => {
+    // Hard eligibility checks
+    const ageOk = !age || svc.eligAge.includes(age);
+    const genderOk = !gender || svc.eligGender.includes(gender);
+    if(!ageOk || !genderOk) {
+      results.push({svc, score:0, domain:0, elig:0, spec:0, access:0, excluded:true, topKey:''});
+      return;
+    }
+
+    // Domain match (0–40): sum of weights for activated signals
+    let domain = 0;
+    let topWeight = 0;
+    let topKey = '';
+    Object.entries(svc.weights).forEach(([key, w]) => {
+      if(signals[key]) {
+        domain += w;
+        if(w > topWeight) { topWeight = w; topKey = key; }
+      }
+    });
+    // Mood severity bonus (up to +6 extra for high frequency scores)
+    if(signals.mood && svc.weights.mood) domain += Math.min(moodTotal, 6);
+    domain = Math.min(domain, 40);
+
+    // Eligibility score (0–30): partial credit if only some demographics answered
+    const elig = (age && gender) ? 30 : (age || gender) ? 15 : 8;
+
+    // Specificity (0–20): reward primary specialists
+    let spec = 0;
+    if(topWeight >= 18) spec = 20;
+    else if(topWeight >= 12) spec = 14;
+    else if(topWeight >= 7) spec = 8;
+    else if(domain > 0) spec = 4;
+
+    // Access fit (0–10): practical bonuses
+    let access = 0;
+    if(svc.free) access += 3;
+    if(svc.online) access += 3;
+    if(svc.ndis && isNDIS) access += 4;
+    if(svc.nature && stressors.includes('trauma')) access += 2;
+    if(prevSupport === 'yes_not_helped' && svc.id !== 'evolve') access += 2;
+    if(isCarer && svc.id === 'evolve') access += 5;
+    if(isCarer && svc.id === 'gambleaware' && signals.gambling) access += 5;
+    access = Math.min(access, 10);
+
+    const score = domain + elig + spec + access;
+    results.push({svc, score, domain, elig, spec, access, excluded:false, topKey});
+  });
+
+  // Sort descending, filter eligible
+  results.sort((a,b) => b.score - a.score);
+  const eligible = results.filter(r => !r.excluded && r.score > 0);
+  let top3 = eligible.slice(0, 3);
+
+  // Fallback: always include Evolve Program if not already present and 3rd result is weak
+  const hasEvolve = top3.some(r => r.svc.id === 'evolve');
+  if(!hasEvolve) {
+    const evolveResult = results.find(r => r.svc.id === 'evolve');
+    if(evolveResult) {
+      if(top3.length < 3) top3.push(evolveResult);
+      else if(top3[2].score < 20) top3[2] = evolveResult;
+    }
+  }
+
+  renderResults(top3, isCarer);
+}
+
+// ── Render results ─────────────────────────────────────────────────────────
+function renderResults(top3, isCarer) {
+  document.getElementById('survey').style.display = 'none';
+  document.getElementById('normal-flow').style.display = 'none';
+  document.getElementById('results-section').style.display = 'block';
+  document.getElementById('results-heading').textContent =
+    isCarer ? 'Recommended services for your person' : 'Your recommended services';
+  document.getElementById('results-sub').textContent =
+    isCarer
+      ? 'Based on the information you provided, here are three services from the Evolve Hub that may best support them.'
+      : 'Based on your answers, here are three services from the Evolve Hub that may best suit your needs.';
+
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+
+  if(!top3.length) {
+    list.innerHTML = '<div class="card"><p>We weren\'t able to narrow down specific services with the information provided. Please contact the <strong>Evolve Program</strong> directly — they can help you find the right pathway.</p></div>';
+    return;
+  }
+
+  const maxScore = Math.max(...top3.map(r => r.score), 1);
+
+  top3.forEach((r, i) => {
+    const rankClass = ['rank-1','rank-2','rank-3'][i];
+    const rankLabel = ['Best match','Second match','Third match'][i];
+    const cardClass = i === 0 ? 'result-card top' : 'result-card';
+    const pct = Math.min(Math.round((r.score / 100) * 100), 100);
+    const topLabel = r.topKey && KEY_LABELS[r.topKey] ? KEY_LABELS[r.topKey] : '';
+    const breakdown = [
+      r.domain > 0 ? `Domain +${r.domain}` : '',
+      r.elig > 0 ? `Eligibility +${r.elig}` : '',
+      r.spec > 0 ? `Specificity +${r.spec}` : '',
+      r.access > 0 ? `Access fit +${r.access}` : ''
+    ].filter(Boolean);
+
+    const div = document.createElement('div');
+    div.className = cardClass;
+    div.innerHTML = `
+      <span class="rank-pill ${rankClass}">${rankLabel}</span>
+      <div class="result-name">${r.svc.name}</div>
+      <div class="result-desc">${r.svc.desc}</div>
+      ${topLabel ? `<div class="result-signal">↑ Matched on: ${topLabel}</div>` : ''}
+      <div class="score-row">
+        <div class="score-bar-wrap"><div class="score-fill" style="width:${pct}%"></div></div>
+        <span class="score-num">Score: ${r.score} / 100</span>
+      </div>
+      <div class="breakdown">${breakdown.map(b=>`<span class="breakdown-chip">${b}</span>`).join('')}</div>
+    `;
+    list.appendChild(div);
+  });
+
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+function resetAll() {
+  Object.keys(state).forEach(k => {
+    if(Array.isArray(state[k])) state[k] = [];
+    else if(typeof state[k] === 'number') state[k] = -1;
+    else state[k] = '';
+  });
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('sel','sel-danger'));
+  for(let r=1;r<=5;r++) for(let c=0;c<=3;c++) {
+    const d = document.getElementById('m'+r+'-'+c);
+    if(d) d.classList.remove('sel','sel-hi');
+  }
+  document.getElementById('q8b-wrap').style.display='none';
+  document.getElementById('crisis-panel').style.display='none';
+  document.getElementById('normal-flow').style.display='block';
+  document.getElementById('results-section').style.display='none';
+  document.getElementById('survey').style.display='block';
+  document.getElementById('results-list').innerHTML='';
+  updateProgress();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+updateProgress();
+</script>
+</body>
+</html>
